@@ -1,5 +1,5 @@
 
-#include <limits.h>é
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +22,8 @@ Pion *plateauDeJeu;
 void f_affiche_plateau(Pion *plateau);
 int f_convert_char2int(char c);
 char f_convert_int2char(int i);
-
+int f_min(Pion *noeud, int profondeur);
+int f_max(Pion *noeud, int profondeur);
 
 
 int f_convert_char2int(char c)
@@ -414,9 +415,53 @@ int f_valeur(Pion* jeu, int joueur)
 //fonction d'évaluation
 int f_eval(Pion* jeu, int joueur)
 {
-    return f_valeur(jeu, joueur) - f_valeur(jeu, -joueur);
-}
+    int gagnant = f_gagnant();
+    int valeur;
+    int pions;
+    int avancement = 0;
+    int avancement_adv = 0;
+    int i, j;
 
+    // priorité 1 : gagner
+    if (gagnant == joueur)
+        return INFINI;
+
+    // priorité 2 : ne pas perdre
+    if (gagnant == -joueur)
+        return -INFINI;
+
+    // avantage de nombre et de valeurs sur le terrain
+    valeur = f_valeur(jeu, joueur) - f_valeur(jeu, -joueur);
+
+    pions = f_nbPions(jeu, joueur) - f_nbPions(jeu, -joueur);
+
+    // facteur de l'avancement des deux joueurs
+    for (i = 0; i < NB_LIGNES; i++)
+    {
+        for (j = 0; j < NB_COLONNES; j++)
+        {
+            if (jeu[i * NB_COLONNES + j].couleur == joueur)
+            {
+                if (joueur == -1)
+                    avancement += i;
+                else
+                    avancement += NB_LIGNES - 1 - i;
+            }
+
+            if (jeu[i * NB_COLONNES + j].couleur == -joueur)
+            {
+                if (-joueur == -1)
+                    avancement_adv += i;
+                else
+                    avancement_adv += NB_LIGNES - 1 - i;
+            }
+        }
+    }
+
+    return valeur * 10
+         + pions * 5
+         + (avancement - avancement_adv) * 2;
+}
 //copie du plateau
 void f_copie_plateau(Pion* source, Pion* destination)
 {
