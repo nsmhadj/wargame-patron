@@ -412,9 +412,9 @@ int f_valeur(Pion* jeu, int joueur)
 }
 
 //fonction d'évaluation
-int f_eval(Pion* jeu,int joueur)
+int f_eval(Pion* jeu, int joueur)
 {
-	/** A vous de trouver une fonction efficace **/
+    return f_valeur(jeu, joueur) - f_valeur(jeu, -joueur);
 }
 
 //copie du plateau
