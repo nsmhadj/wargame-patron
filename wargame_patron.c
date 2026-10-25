@@ -570,13 +570,89 @@ int f_min(Pion *noeud, int profondeur)
 void f_IA(int joueur)
 {
 #ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
+    printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
 #endif
 
-	/** A remplir **/
+    int a1, b1, a2, b2;
+    int score;
+    int meilleur_score = -INFINI;
+
+    int meilleur_a1 = -1;
+    int meilleur_b1 = -1;
+    int meilleur_a2 = -1;
+    int meilleur_b2 = -1;
+
+    Pion *fils;
+
+    // parcourir tous les pions sur le plateau actuel
+    for (a1 = 0; a1 < NB_LIGNES; a1++)
+    {
+        for (b1 = 0; b1 < NB_COLONNES; b1++)
+        {
+            if (plateauDeJeu[a1 * NB_COLONNES + b1].couleur == -1)
+            {
+                // tester les cases autour du chaque pion
+                for (a2 = a1 - 1; a2 <= a1 + 1; a2++)
+                {
+                    for (b2 = b1 - 1; b2 <= b1 + 1; b2++)
+                    {
+                        if (f_test_mouvement(
+                                plateauDeJeu,
+                                a1, b1,
+                                a2, b2,
+                                -1) == 0)
+                        {
+                            fils = f_raz_plateau();
+
+                            f_copie_plateau(plateauDeJeu, fils);
+
+                            // simuler le coup de l'IA
+                            f_bouge_piece(
+                                fils,
+                                a1, b1,
+                                a2, b2,
+                                -1
+                            );
+
+                            // ensuite on simule le tour du joueur adversaire
+                            score = f_min(fils, 2);
+
+                            // sauvgarder le meilleur score
+                            if (score > meilleur_score)
+                            {
+                                meilleur_score = score;
+
+                                meilleur_a1 = a1;
+                                meilleur_b1 = b1;
+                                meilleur_a2 = a2;
+                                meilleur_b2 = b2;
+                            }
+
+                            free(fils);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // jouer le meilleur coup trouvé
+    if (meilleur_a1 != -1)
+    {
+        f_bouge_piece(
+            plateauDeJeu,
+            meilleur_a1,
+            meilleur_b1,
+            meilleur_a2,
+            meilleur_b2,
+            -1
+        );
+
+        printf("score : %d\n", meilleur_score);
+    }
 
 #ifdef DEBUG
-	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
+    printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
 #endif
 }
 
